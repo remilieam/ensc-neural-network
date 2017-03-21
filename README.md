@@ -1,6 +1,6 @@
 # Projet Informatique Individuel
 
-** Réseau de neurones**
+**Réseau de neurones**
 
 Le but de ce projet est de créer une bibliothèque
 qui permet de créer un réseau de neurones fonctionnel,
