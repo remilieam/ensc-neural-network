@@ -2,16 +2,17 @@
 
 import numpy as np
 import layer as ll
-import random as rd
+
+###############################################################################
 
 # Fonction Sigmoïde
 def sigmoid(x):
-#    return 1.0/(1.0+np.exp(-x))
+#    return 1.0 / (1.0 + np.exp(-x))
     return np.tanh(x)
 
 # Dérivée de la fonction Sigmoïde
 def dsigmoid(y):
-#    return np.exp(y)/(1.0+np.exp(y))**2
+#    return y * (1.0 - y)
     return 1.0 - y**2
 
 # Fonction ReLu
@@ -22,18 +23,22 @@ def relu(x):
 def drelu(y):
     return 1.0 * (y > 0)
 
+###############################################################################
+###############################################################################
+
 class Network:
     """
     Cette classe permet de contruire et utiliser un réseau de neurones
     """
-    
+
+###############################################################################
+
     def __init__(self, *layers):
         """
         Construit le réseau de neurones (couches et poids entre couche)
         
         Prend en argument un dictionnaire contenant des couches de neurones
         """
-        
         # Récupération du nombre de couches et construction des couches
         self.nbLayers = len(layers)
         self.activations = [layer["activation"] for layer in layers]
@@ -44,10 +49,10 @@ class Network:
         for i in range(self.nbLayers-1):
             matrix = np.random.random((self.layers[i].size, self.layers[i+1].size))
             self.weights.append(2 * layers[i]["poids"] * matrix - layers[i]["poids"])
-        
-        self.changes = [np.zeros((self.layers[i].size, self.layers[i+1].size)) for i in range(len(self.weights))]
-    
-    def train(self, data, iteration = 1000, N = 0.5, M = 0.1):
+
+###############################################################################
+
+    def train(self, data, iteration = 1000, N = 0.5):
         """
         Permet d’entraîner le réseau de neurones, c’est-à-dire à calculer les
         poids entre chaque neurone de chaque couche
@@ -62,16 +67,22 @@ class Network:
                 inputs = d[0]
                 targets = d[1]
                 self.test(inputs)
-                error = error + self.computation(targets, N, M)
-#            if i % 100 == 0:
-#                print('Erreur à l’itération ', i, ' : %-.5f' % error)
-    
-    def computation(self, targets, N, M):
+                error = error + self.computation(targets, N)
+            if ((i+1) % 100) == 0 :
+                print('À l’itération', (i+1), 'l’erreur est de : %-.5f' % error)
+
+###############################################################################
+
+    def computation(self, targets, N):
         """
         Permet de calculer l’erreur pour une entrée donnée
         
-        Prend en argument les valeurs de sortie que l’on veut
+        Prend en argument les valeurs de sortie que l’on veut et
+        le coefficient d’apprentissage N
         """
+        # Vérification de la compatibilité
+        if len(targets) != len(self.layers[-1]):
+            raise ValueError('Le nombre de valeurs de sortie est incompatible avec le réseau de neurones…')
         
         # Calcul de l’écart entre la sortie calculée et la sortie théorique
         error = targets - self.layers[-1]
@@ -87,7 +98,7 @@ class Network:
         deltas.append(de)
         
         # Calcul des termes d’erreurs pour les couches intermédiaires
-        for i in range(len(self.layers)-2, 0, -1):
+        for i in range(self.nbLayers-2, 0, -1):
             if self.activations[i-1] == "sigmoid":
                 de = np.dot(deltas[-1], self.weights[i].T) * dsigmoid(self.layers[i])
             elif self.activations[i-1] == "relu":
@@ -97,20 +108,19 @@ class Network:
         # Remise dans le bon sens (étant donné qu’on est partie de la sortie)
         deltas.reverse()
         
-        # Calcul des nouveaux poids
+        # Correction des poids
         for i in range(len(self.weights)):
-            for j in range(len(self.weights[i])):
-                for k in range(len(self.weights[i][j])):
-                    change = deltas[i][k] * self.layers[i][j]
-                    self.weights[i][j][k] += N * change + M * self.changes[i][j][k]
-                    self.changes[i][j][k] = change
+            change = np.dot(np.array([self.layers[i]]).T, np.array([deltas[i]]))
+            self.weights[i] += N * change
         
-        # Calcul de l’erreur
+        # Calcul de l’erreur quadratique
         error = 0.0
         for i in range(len(targets)):
-            error = error + 0.5*(targets[i] - self.layers[-1][i])**2
+            error = error + 0.5 * (targets[i] - self.layers[-1][i])**2
         return error
-    
+
+###############################################################################
+
     def test(self, inputs):
         """
         Permet de tester le réseau de neurones, celui-ci ayant été 
@@ -119,7 +129,6 @@ class Network:
         Prend en argument les valeurs à donner aux neurones
         de la couche d’entrée
         """
-        
         # Vérification que le nombre d’entrée est compatible avec le réseau
         if len(inputs + [1.0]) != len(self.layers[0]):
             raise ValueError('Le nombre de valeurs d’entrée est incompatible avec le réseau de neurones…')
@@ -137,12 +146,19 @@ class Network:
         # Renvoi de la couche de sortie
         return self.layers[-1]
 
-# Exemple par défaut
-L1 = ll.Layer("entree", 2, "relu", 0.5)
+###############################################################################
+###############################################################################
+
+# Couches
+L1 = ll.Layer("entree", 2, "sigmoid", 0.1)
 L2 = ll.Layer("inter1", 5, "sigmoid", 0.3)
-L3 = ll.Layer("inter2", 3, "sigmoid", 0.4)
-L4 = ll.Layer("sortie", 1, "relu", 1)
+L3 = ll.Layer("inter2", 3, "sigmoid", 0.2)
+L4 = ll.Layer("sortie", 1, "sigmoid", 1)
+
+# Construction du réseau
 N = Network(L1.get(), L2.get(), L3.get(), L4.get())
+
+# Données à apprendre
 data = [
         [[0, 0], [0]], 
         [[0, 1], [1]],
@@ -150,14 +166,15 @@ data = [
         [[1, 1], [0]]
         ]
 
-# Test
+# Test avant l’entraînement
 print("Avant :")
 for d in data:
     print(d[0], " -> ", N.test(d[0]))
 
+# Entraînement
 N.train(data)
 
-# Test
+# Test après l’entraînement
 print("Après :")
 for d in data:
     print(d[0], " -> ", N.test(d[0]))
