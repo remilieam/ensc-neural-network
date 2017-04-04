@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import layer as ly
 import activation as at
 
 class Network:
@@ -19,7 +18,7 @@ class Network:
         """
         # Récupération du nombre de couches et construction des couches
         self.nbLayers = len(layers)
-        self.layers = [np.ones(layers[i]["dimension"] + (i == 0)) for i in range(0, self.nbLayers)]
+        self.layers = [np.ones((1, layers[i]["dimension"] + (i == 0))) for i in range(0, self.nbLayers)]
         self.activations = [layer["activation"] for layer in layers]
         
         # Attribution des poids entre les neurones de chaque couche
@@ -42,8 +41,8 @@ class Network:
         for i in range(iteration):
             error = 0.0
             for d in data:
-                inputs = d[0]
-                targets = d[1]
+                inputs = np.array([d[0]])
+                targets = np.array([d[1]])
                 self.test(inputs)
                 error = error + self.computation(targets, N)
             if ((i+1) % 100) == 0 :
@@ -59,7 +58,7 @@ class Network:
         le coefficient d’apprentissage N
         """
         # Vérification de la compatibilité
-        if len(targets) != len(self.layers[-1]):
+        if targets.size != self.layers[-1].size:
             raise ValueError('Le nombre de valeurs de sortie est incompatible avec le réseau de neurones…')
         
         # Initialisation de la liste contenant les termes d’erreurs de chaque couche
@@ -85,13 +84,13 @@ class Network:
         
         # Correction des poids
         for i in range(len(self.weights)):
-            change = np.dot(np.array([self.layers[i]]).T, np.array([deltas[i]]))
+            change = np.dot(self.layers[i].T, deltas[i])
             self.weights[i] += N * change
         
         # Calcul de l’erreur quadratique
         error = 0.0
-        for i in range(len(targets)):
-            error = error + 0.5 * (targets[i] - self.layers[-1][i])**2
+        for i in range(targets.size):
+            error = error + 0.5 * (targets[0][i] - self.layers[-1][0][i])**2
         return error
 
 ###############################################################################
@@ -105,18 +104,18 @@ class Network:
         de la couche d’entrée
         """
         # Vérification que le nombre d’entrée est compatible avec le réseau
-        if len(inputs + [1.0]) != len(self.layers[0]):
+        if (inputs.size + 1) != self.layers[0].size:
             raise ValueError("Le nombre de valeurs d’entrée est incompatible avec le réseau de neurones…")
         
         # Calcul de la valeur de chaque neurone avec les entrées données
-        self.layers[0] = np.array(inputs + [1.0])
+        self.layers[0] = np.array([np.append(inputs, [1.])])
         for i in range(1, self.nbLayers):
             if self.activations[i-1] == "sigmoid":
                 self.layers[i] = at.sigmoid(np.dot(self.layers[i-1], self.weights[i-1]))
             elif self.activations[i-1] == "relu":
                 self.layers[i] = at.relu(np.dot(self.layers[i-1], self.weights[i-1]))
             else:
-                raise ValueError('La fonction d’activation n’est pas définie')
+                raise ValueError("La fonction d’activation n’est pas définie")
         
         # Renvoi de la couche de sortie
         return self.layers[-1]
