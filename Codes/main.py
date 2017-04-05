@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import numpy as np
 import layer as ly
 import network as nw
 
@@ -27,7 +28,7 @@ for d in data:
     print(d[0], "->", N.test(np.array(d[0]))[0])
 
 # Entraînement
-N.train(data)
+N.train(data, 1000, 0.2)
 
 # Test après l’entraînement
 print("Après :")
