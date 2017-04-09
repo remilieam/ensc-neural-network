@@ -56,7 +56,7 @@ class Network:
 
 ###############################################################################
 
-    def train(self, data, iteration = 500, N = 0.5):
+    def train(self, inputs, targets, iteration = 500, N = 0.5):
         """
         Permet d’entraîner le réseau de neurones, c’est-à-dire à calculer les
         poids entre chaque neurone de chaque couche
@@ -67,12 +67,10 @@ class Network:
         """
         for i in range(iteration):
             error = 0.0
-            for d in data:
-                inputs = np.array([d[0]])
-                targets = np.array([d[1]])
-                self.test(inputs)
-                error = error + np.sum(0.5*(targets - self.layers[-1])**2)
-                self.computation(targets, N)
+            for j in range(len(inputs)):
+                self.test(inputs[j])
+                error = error + np.sum(0.5*(targets[j] - self.layers[-1])**2)
+                self.computation(targets[j], N)
             if ((i+1) % (iteration/10)) == 0 :
                 print("À l’itération", (i+1), "l’erreur est de : %-.5f" %error)
 
