@@ -3,6 +3,7 @@
 import couche as c
 import numpy as np
 import fonction as f
+import donnees as d
 
 class Reseau:
     def __init__(self, *couches):
@@ -25,8 +26,6 @@ class Reseau:
         dico_nouveaux_poids = {couche: np.zeros_like(couche.poids) for _, couche in self.couches}
         dico_nouveaux_biais = {couche: np.zeros_like(couche.biais) for _, couche in self.couches}
         for entrees, sorties in donnees:
-            entrees = entrees.reshape(entrees.size, 1)
-            sorties = sorties.reshape(sorties.size, 1)
             self.prediction(entrees)
             erreur = erreur + np.sum(0.5*(sorties - self.couche_sortie.neurones)**2)
             delta = (sorties - self.couche_sortie.neurones)*self.couche_sortie.derivee_activation(self.couche_sortie.neurones)
@@ -48,17 +47,17 @@ class Reseau:
 
     def test(self, donnees):
         for entrees, sorties in donnees:
-            entrees = entrees.reshape(entrees.size, 1)
-            sorties = sorties.reshape(sorties.size, 1)
             self.prediction(entrees)
             print(entrees.ravel(), '->', self.couche_sortie.neurones.ravel(), '-->', sorties.ravel())
 
 
 if __name__ == "__main__":
+    # Perceptron multi-couches
     couche_entree = c.CoucheEntree(2, 1)
     couche_cachee = c.CoucheConnectee(10, 0.5, f.sigmoide)
     couche_cachee_2 = c.CoucheConnectee(6, 0.2, f.sigmoide)
     couche_sortie = c.CoucheConnectee(1, 0.4, f.sigmoide)
+
     reseau = Reseau(couche_entree, couche_cachee, couche_cachee_2, couche_sortie)
 
     donnees = [
@@ -70,3 +69,19 @@ if __name__ == "__main__":
 
     reseau.entrainement(donnees, 50000, 0.5)
     reseau.test(donnees)
+
+    # Réseau neuronal convolué
+    couche_entree = c.CoucheEntree(28, 28)
+    couche_convoluee = c.CoucheConvoluee(2, 0.5, f.sigmoide, 5)
+    couche_pooling = c.CouchePooling(2)
+    couche_sortie = c.CoucheConnectee(10, 0.4, f.sigmoide)
+
+    reseau_mnist = Reseau(couche_entree, couche_convoluee, couche_pooling, couche_sortie)
+
+    donnees_mnist = d.Donnees('MNIST_data')
+    (entrainement_images, entrainement_labels), (test_images, test_labels) = donnees_mnist.recuperation()
+    donnees_entrainement = [(x, y) for x, y in zip(entrainement_images, entrainement_labels)]
+    donnees_test = [(x, y) for x, y in zip(test_images, test_labels)]
+
+    reseau_mnist.entrainement(donnees_entrainement[0:1000], 10, 0.1)
+    reseau_mnist.test(donnees_test[0:2])
