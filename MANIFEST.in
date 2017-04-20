@@ -1,3 +1,3 @@
-include *.md
-recursive-include pii-neural-network *.idx3-ubyte
-recursive-include pii-neural-network *.idx1-ubyte
+include MANIFEST.in
+include README.md
+recursive-include pii_neural_network *.py *.idx3-ubyte *.idx1-ubyte
