@@ -13,7 +13,7 @@ projet informatique individuel de deuxième année
 
 ## Installation
 
-Commencer par télécharger le dépôt Github
+Commencez par télécharger le dépôt Github
 sur votre ordinateur.
 
 Ensuite, ouvrez une invite de commandes là où vous
@@ -39,11 +39,11 @@ La bibliothèque est désormais installée !
 >>> reseau = reseau.Reseau(couche_1, couche_2, couche_3, couche_4)
 
 >>> donnees = [
-				[np.array([0.0, 0.0]), np.array([0.0])],
-				[np.array([0.0, 1.0]), np.array([1.0])],
-				[np.array([1.0, 0.0]), np.array([1.0])],
-				[np.array([1.0, 1.0]), np.array([0.0])]
-			  ]
+                [np.array([0.0, 0.0]), np.array([0.0])],
+                [np.array([0.0, 1.0]), np.array([1.0])],
+                [np.array([1.0, 0.0]), np.array([1.0])],
+                [np.array([1.0, 1.0]), np.array([0.0])]
+              ]
 
 >>> reseau.entrainement(donnees, 50000, 0.5)
 
