@@ -17,12 +17,10 @@ setup(
     url = 'https://github.com/remilieam/pii-neural-network',
     classifiers = [
         "Programming Language :: Python",
-        "Development Status :: 1 - Planning",
         "License :: OSI Approved",
         "Natural Language :: French",
         "Operating System :: OS Independent",
-        "Programming Language :: Python :: 2.7",
-        "Topic :: Communications",
+        "Programming Language :: Python :: 3.5",
     ],
     license = "WTFPL",
 )
