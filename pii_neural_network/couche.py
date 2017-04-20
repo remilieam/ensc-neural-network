@@ -1,11 +1,25 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import fonction as f
-import numpy as np
+"""
+Classes pour créer les couches d’un réseau de
+neurones
+"""
 
-# Classe abstraite
+import pii_neural_network.fonction as f
+import numpy as np
+__all__ = ['CoucheEntree', 'CoucheConnectee',
+           'CoucheConvoluee', 'CouchePooling']
+
+
 class Couche:
+    """
+    Classe abstraite
+    """
     def __init__(self):
+        """
+        Constructeur => tous les attributs sont vides par défaut
+        """
         self.profondeur = None
         self.hauteur = None
         self.largeur = None
@@ -18,19 +32,47 @@ class Couche:
         self.derivee_activation = None
 
     def connexion(self, couche_precedente):
+        """
+        Méthode abstraite
+        """
         raise AssertionError
 
     def prediction(self, couche_precedente):
+        """
+        Méthode abstraite
+        """
         raise AssertionError
 
     def propagation(self, couche_precedente, delta):
+        """
+        Méthode abstraite
+        """
         raise AssertionError
 
 
 class CoucheEntree(Couche):
+    """
+    Classe pour la première couche de neurones d’un réseau de neurones
+    """
     # Couche d’entrée d’une profondeur de 1, d’une hauteur donnée
     # et d’une largeur donnée
     def __init__(self, hauteur, largeur):
+        """
+        Constructeur
+        
+        Arguments :
+        -----------
+        
+        hauteur : hauteur de la couche
+        largeur : largeur de la couche
+        
+        Exemple :
+        ---------
+        
+        Pour avoir une première couche ayant 24 neurones de haut et 12 de large :
+        
+        >>> couche = CoucheEntree(24, 12)
+        """
         Couche.__init__(self)
         self.profondeur = 1
         self.hauteur = hauteur
@@ -41,24 +83,59 @@ class CoucheEntree(Couche):
     # Pas possible de connecter cette couche à une précédente couche
     # vu que c’est la première
     def connexion(self, couche_precedente):
+        """
+        Méthode non-définie car une couche d’entrée n’a pas de 
+        couche précédente
+        """
         raise AssertionError
     
     # Pas possible de calculer les valeurs des neurones de cette couche 
     # en fonction des valeurs des neurones de la précédente couche car
     # cette couche est la première
     def prediction(self, couche_precedente):
+        """
+        Méthode non-définie car une couche d’entrée n’a pas de 
+        couche précédente
+        """
         raise AssertionError
 
     # Pas possible de calculer les variations à effectuer dans la matrice des
     # poids ou dans la matrice de biais, ni à calculer l’erreur pour la couche
     # précédente parce que cette couche est la première
     def propagation(self, couche_precedente, delta):
+        """
+        Méthode non-définie car une couche d’entrée n’a pas de 
+        couche précédente
+        """
         raise AssertionError
 
 class CoucheConnectee(Couche):
+    """
+    Classe pour les couches entièrement connectées d’un réseau de neurones
+    """
     # Couche entièrement connectée d’une profondeur de 1, d’une hauteur donnée
     # et d’une largeur de 1
     def __init__(self, hauteur, initialisation, activation):
+        """
+        Constructeur
+        
+        Arguments :
+        -----------
+        
+        hauteur        : hauteur de la couche de neurones
+        initialisation : amplitude de l’intervalle dans lequel seront
+                         initialisés les poids synaptiques
+        activation     : fonction d’activation
+        
+        Exemple :
+        ---------
+        
+        Pour avoir une couche entièrement connectée ayant 5 neurones,
+        une valeur d’initialisation de 0.2 et la fonction tanh pour
+        fonction d’activation :
+        
+        >>> couche = CoucheConnectee(5, 0.2, f.sigmoide)
+        """
         Couche.__init__(self)
         self.profondeur = 1
         self.hauteur = hauteur
@@ -74,12 +151,38 @@ class CoucheConnectee(Couche):
     # précédente couche, et la matrice de biais (matrice colonne dont le 
     # nombre de lignes correspond au nombre de neurones de notre couche)
     def connexion(self, couche_precedente):
+        """
+        Connecte notre couche une autre couche, généralement la couche
+        qui la précède dans le réseau, en créant la matrice des poids
+        synaptiques et la matrice des biais entre les 2 couches
+        
+        Argument :
+        ----------
+        
+        couche_precedente : instance de la classe Couche
+        
+        Exemple :
+        ---------
+        
+        Pour connecter notre couche couche_2 à la couche couche_1 :
+        
+        >>> couche_2.connexion(couche_1)
+        """
         self.poids = np.random.uniform(-self.initialisation, self.initialisation, (self.nb_neurones, couche_precedente.nb_neurones))
         self.biais = np.ones((self.nb_neurones, 1))
 
     # En fonction des valeurs de sortie des neurones de la couche précédente,
     # calcul les valeurs de sortie des neurones de notre couche
     def prediction(self, couche_precedente):
+        """
+        Calcule les valeurs des neurones de notre couche en fonction des
+        valeurs des neurones de la couche précédente dans le réseau
+        
+        Argument :
+        ----------
+        
+        couche_precedente : instance de la classe Couche
+        """
         # La couche précédente devient une matrice colonne
         neurones_precedents = couche_precedente.neurones.reshape((couche_precedente.neurones.size, 1))
 
@@ -94,6 +197,24 @@ class CoucheConnectee(Couche):
     # calcul des variations des poids et du biais, 
     # ainsi que de la nouvelle erreur calculée
     def propagation(self, couche_precedente, delta):
+        """
+        Calcule les variations des poids synaptiques et des biais à effectuer
+        entre notre couche à la couche précédente afin de minimiser l’erreur
+        quadratique (dérivée de l’erreur par rapport aux poids / aux biais)
+        
+        Arguments :
+        -----------
+        
+        couche_precedente : instance de la classe Couche
+        delta             : erreur
+        
+        Retours :
+        ---------
+        
+        nouveaux_poids  : variations à effectuer sur les poids synaptique
+        nouveaux_biais  : variations à effectuer sur les biais
+        delta_precedent : erreur à propager pour la précédente couche
+        """
         # Vérification que la taille est cohérente
         assert delta.shape == self.neurones.shape
 
@@ -119,9 +240,39 @@ class CoucheConnectee(Couche):
 
         
 class CoucheConvoluee(Couche):
+    """
+    Classe pour les couches de convolution d’un réseau de neurones
+    """
     # Couche convoluée de profondeur donnée et de taille de filtre donné et
     # de pas 1 par défaut
     def __init__(self, profondeur, initialisation, activation, taille_filtre, pas = 1):
+        """
+        Constructeur
+        
+        Arguments :
+        -----------
+        
+        profondeur     : profondeur de la couche de neurones
+        initialisation : amplitude de l’intervalle dans lequel seront
+                         initialisés les poids synaptiques
+        activation     : fonction d’activation
+        taille_filtre  : taille du filtre qui permettra la convolution
+        pas            : chevauchement entre les différentes surfaces de
+                         traitement, à 1 par défaut
+        
+        Exemple :
+        ---------
+        
+        Pour avoir une couche de convolution de profondeur 2, avec
+        une valeur d’initialisation de 0.4 et la fonction ReLu pour
+        fonction d’activation, un filtre de 5 par 5 et un pas de 1 :
+        
+        >>> couche = CoucheConnectee(2, 0.4, f.relu, 5)
+        
+        ou
+        
+        >>> couche = CoucheConnectee(2, 0.4, f.relu, 5, 1)
+        """
         Couche.__init__(self)
         self.profondeur = profondeur
         self.taille_filtre = taille_filtre
@@ -133,6 +284,26 @@ class CoucheConvoluee(Couche):
     # Connexion de notre couche à la couche précédente via la matrice de poids
     # Récupération également de la taille de la couche et de la matrice de biais
     def connexion(self, couche_precedente):
+        """
+        Connecte notre couche une autre couche, généralement la couche
+        qui la précède dans le réseau, en créant la matrice des poids
+        synaptiques et la matrice des biais entre les 2 couches
+        
+        Permet également, en fonction de la couche précédente, de déduire
+        les dimensions de notre couche
+        
+        Argument :
+        ----------
+        
+        couche_precedente : instance de la classe Couche
+        
+        Exemple :
+        ---------
+        
+        Pour connecter notre couche couche_2 à la couche couche_1 :
+        
+        >>> couche_2.connexion(couche_1)
+        """
         # Déduction de la taille de la couche grâce à la taille du filtre utilisé
         self.hauteur = ((couche_precedente.hauteur - self.taille_filtre)//self.pas) + 1
         self.largeur  = ((couche_precedente.largeur  - self.taille_filtre)//self.pas) + 1
@@ -145,6 +316,15 @@ class CoucheConvoluee(Couche):
     # Calcul des valeurs des neurones de sortie de notre couche en fonction
     # des valeurs des neurones de sortie de la couche précédente
     def prediction(self, couche_precedente):
+        """
+        Calcule les valeurs des neurones de notre couche en fonction des
+        valeurs des neurones de la couche précédente dans le réseau
+        
+        Argument :
+        ----------
+        
+        couche_precedente : instance de la classe Couche
+        """
         # Vérification que la couche précédente est compatible avec le réseau
         assert self.poids.shape == (self.profondeur, couche_precedente.profondeur, self.taille_filtre, self.taille_filtre)
         assert self.biais.shape == (self.profondeur, 1)
@@ -191,6 +371,24 @@ class CoucheConvoluee(Couche):
     # calcul des variations des poids et du biais, 
     # ainsi que de la nouvelle erreur calculée
     def propagation(self, couche_precedente, delta):
+        """
+        Calcule les variations des poids synaptiques et des biais à effectuer
+        entre notre couche à la couche précédente afin de minimiser l’erreur
+        quadratique (dérivée de l’erreur par rapport aux poids / aux biais)
+        
+        Arguments :
+        -----------
+        
+        couche_precedente : instance de la classe Couche
+        delta             : erreur
+        
+        Retours :
+        ---------
+        
+        nouveaux_poids  : variations à effectuer sur les poids synaptique
+        nouveaux_biais  : variations à effectuer sur les biais
+        delta_precedent : erreur à propager pour la précédente couche
+        """
         assert delta.shape[0] == self.profondeur
 
         # Récupération des valeurs de sorties de la couche précédente
@@ -256,12 +454,51 @@ class CoucheConvoluee(Couche):
 
 
 class CouchePooling(Couche):
+    """
+    Classe pour les couches de pooling d’un réseau de neurones
+    Une couche de pooling est toujours précédée par une couche de convolution
+    """
     def __init__(self, taille_pool):
+        """
+        Constructeur
+        
+        Argument :
+        ----------
+        
+        taille_pool : taille du regroupement, généralement de 2
+        
+        Exemple :
+        ---------
+        
+        Pour avoir une couche de pooling qui permet de regrouper une surface
+        de 2 par 2 en une surface unique
+        
+        >>> couche = CoucheConnectee(2)
+        """
         Couche.__init__(self)
         self.taille_pool = taille_pool
         self.derivee_activation = lambda x: x
 
     def connexion(self, couche_precedente):
+        """
+        Connecte notre couche une autre couche, généralement la couche
+        qui la précède dans le réseau
+        
+        Permet également, en fonction de la couche précédente, de déduire
+        les dimensions de notre couche
+        
+        Argument :
+        ----------
+        
+        couche_precedente : instance de la classe Couche
+        
+        Exemple :
+        ---------
+        
+        Pour connecter notre couche couche_2 à la couche couche_1 :
+        
+        >>> couche_2.connexion(couche_1)
+        """
         # Vérification que la couche précédente est bien une couche convoluée
         assert isinstance(couche_precedente, CoucheConvoluee)
         
@@ -278,6 +515,15 @@ class CouchePooling(Couche):
         self.biais = np.empty((0))
 
     def prediction(self, couche_precedente):
+        """
+        Calcule les valeurs des neurones de notre couche en fonction des
+        valeurs des neurones de la couche précédente dans le réseau
+        
+        Argument :
+        ----------
+        
+        couche_precedente : instance de la classe Couche
+        """
         # Vérification de la couche précédente est compatible avec notre couche
         assert self.poids.size == 0
         assert self.biais.size == 0
@@ -310,6 +556,22 @@ class CouchePooling(Couche):
                     self.neurones[r, i, j] = np.max(neurones_precedents_pool)
 
     def propagation(self, couche_precedente, delta):
+        """
+        Calcule l’erreur à propager pour la précédente couche
+        
+        Arguments :
+        -----------
+        
+        couche_precedente : instance de la classe Couche
+        delta             : erreur
+        
+        Retours :
+        ---------
+        
+        nouveaux_poids  : Ø
+        nouveaux_biais  : Ø
+        delta_precedent : erreur à propager pour la précédente couche
+        """
         # Vérification de la couche précédente est compatible avec notre couche
         assert self.poids.size == 0
         assert self.biais.size == 0
