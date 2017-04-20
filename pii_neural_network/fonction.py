@@ -7,8 +7,7 @@ couches de neurones
 """
 
 import numpy as np
-__all__ = ['sigmoide', 'derivee_sigmoide', 'relu', 'derivee_relu',
-           'tanh', 'derivee_tanh']
+__all__ = ['sigmoide', 'relu', 'tanh']
 
 # Fonction sigmoïde
 def sigmoide(x):

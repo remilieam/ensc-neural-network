@@ -3,8 +3,6 @@
 
 import pii_neural_network.couche as c
 import numpy as np
-import pii_neural_network.fonction as f
-import pii_neural_network.donnees as d
 __all__ = ['Reseau']
 
 """
@@ -140,6 +138,9 @@ class Reseau:
 
 
 if __name__ == "__main__":
+    import pii_neural_network.fonction as f
+    import pii_neural_network.donnees as d
+    
     # Perceptron multi-couches
     couche_entree = c.CoucheEntree(2, 1)
     couche_cachee = c.CoucheConnectee(10, 0.5, f.sigmoide)
@@ -166,7 +167,7 @@ if __name__ == "__main__":
 
     reseau_mnist = Reseau(couche_entree, couche_convoluee, couche_pooling, couche_sortie)
 
-    (entrainement_images, entrainement_labels), (test_images, test_labels) = d.recuperation('MNIST_data')
+    (entrainement_images, entrainement_labels), (test_images, test_labels) = d.recuperation()
     donnees_entrainement = [(x, y) for x, y in zip(entrainement_images, entrainement_labels)]
     donnees_test = [(x, y) for x, y in zip(test_images, test_labels)]
 
