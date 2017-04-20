@@ -9,32 +9,18 @@ de neurones
 import os
 import struct
 import numpy as np
+import pii_neural_network.fonction as f
 __all__ = ['recuperation']
 
-def recuperation(chemin_donnees):
+def recuperation():
     """
     Permet de récupérer la base de données MNIST composées de 4 fichiers
-    
-    Les 4 fichiers doivent avoir les extensions .idx3-ubyte
-    et .idx1-ubyte
-    
-    Argument :
-    ----------
-    
-    chemin_donnees : chaîne de caractères donnant le chemin relatif du dossier
-                     contenant les 4 fichiers de la base de données MNIST
-    
-    Exemple :
-    ---------
-    
-    Si les 4 fichiers sont rangés dans le dossier 'MNIST_data',
-    il faut appeler la fonction de la sorte :
-    
-    >>> recuperation('MNIST_data')
     """
+    chemin = os.path.dirname(f.__file__)
+    
     # Récupération des jeux de données pour l’entraînement (images et labels)
-    jeu_entrainement_images = os.path.join(chemin_donnees, "train-images.idx3-ubyte")
-    jeu_entrainement_labels = os.path.join(chemin_donnees, "train-labels.idx1-ubyte")
+    jeu_entrainement_images = os.path.join(chemin, "MNIST_data", "train-images.idx3-ubyte")
+    jeu_entrainement_labels = os.path.join(chemin,"MNIST_data", "train-labels.idx1-ubyte")
 
     # Construction des tableaux contenant les jeux de données pour l’entraînement
     with open(jeu_entrainement_images, "rb") as fichier:
@@ -45,8 +31,8 @@ def recuperation(chemin_donnees):
         entrainement_labels = np.fromfile(fichier, dtype = np.uint8)
 
     # Récupération des jeux de données pour les tests (images et labels)
-    jeu_test_images = os.path.join(chemin_donnees, "t10k-images.idx3-ubyte")
-    jeu_test_labels = os.path.join(chemin_donnees, "t10k-labels.idx1-ubyte")
+    jeu_test_images = os.path.join(chemin, "MNIST_data", "t10k-images.idx3-ubyte")
+    jeu_test_labels = os.path.join(chemin, "MNIST_data", "t10k-labels.idx1-ubyte")
 
     # Construction des tableaux contenant les jeux de données pour les tests
     with open(jeu_test_images, "rb") as fichier:
