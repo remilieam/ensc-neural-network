@@ -3,8 +3,6 @@
 
 from setuptools import setup, find_packages
 
-import pii_neural_network
-
 setup(
     name = 'pii-neural-network',
     version = '0.0.1',
