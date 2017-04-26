@@ -16,7 +16,7 @@ projet informatique individuel de deuxième année
 Pré-requis :
 
 - [Python](https://www.python.org/downloads/)
-- [Numpy] (https://pypi.python.org/pypi/numpy)
+- [Numpy] (https://pypi.python.org/pypi/numpy/)
 
 Commencez par télécharger le dépôt Github
 sur votre ordinateur et décompressez-le.
