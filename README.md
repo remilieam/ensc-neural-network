@@ -13,17 +13,24 @@ projet informatique individuel de deuxième année
 
 ## Installation
 
+Pré-requis :
+
+- [Python](https://www.python.org/downloads/)
+- [Numpy] (https://pypi.python.org/pypi/numpy)
+
 Commencez par télécharger le dépôt Github
-sur votre ordinateur.
+sur votre ordinateur et décompressez-le.
 
 Ensuite, ouvrez une invite de commandes là où vous
-avez téléchargé le dépôt, et faites :
+avez se trouve le dépôt, et tapez la commande :
 
 ```
 python setup.py install
 ```
 
-La bibliothèque est désormais installée !
+La bibliothèque est désormais installée ! Vous pouvez
+désormais passer en Python en tapant la commande `python`
+dans votre invite de commandes.
 
 ## Exemple d’utilisation
 
