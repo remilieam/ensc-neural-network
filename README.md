@@ -54,18 +54,20 @@ dans votre invite de commandes.
 
 >>> reseau.entrainement(donnees, 50000, 0.5)
 
-À l’itération 5000 l’erreur est de : 0.49932
-À l’itération 10000 l’erreur est de : 0.08878
-À l’itération 15000 l’erreur est de : 0.00129
-À l’itération 20000 l’erreur est de : 0.00056
-À l’itération 25000 l’erreur est de : 0.00035
-À l’itération 30000 l’erreur est de : 0.00025
-À l’itération 35000 l’erreur est de : 0.00019
-À l’itération 40000 l’erreur est de : 0.00016
-À l’itération 45000 l’erreur est de : 0.00013
-À l’itération 50000 l’erreur est de : 0.00011
+À l'itération 5000 l'erreur est de : 0.49932
+À l'itération 10000 l'erreur est de : 0.08878
+À l'itération 15000 l'erreur est de : 0.00129
+À l'itération 20000 l'erreur est de : 0.00056
+À l'itération 25000 l'erreur est de : 0.00035
+À l'itération 30000 l'erreur est de : 0.00025
+À l'itération 35000 l'erreur est de : 0.00019
+À l'itération 40000 l'erreur est de : 0.00016
+À l'itération 45000 l'erreur est de : 0.00013
+À l'itération 50000 l'erreur est de : 0.00011
 
->>> reseau.test(donnees)
+>>> donnees_predites = reseau.test(donnees)
+>>> for ((_, sortie_predite), (entree, sortie)) in zip(donnees_predites, donnees):
+...     print(entree.ravel(), '->', sortie_predite.ravel(), '-->', sortie.ravel())
 
 [ 0.  0.] -> [ 0.00622684] --> [ 0.]
 [ 0.  1.] -> [ 0.99169472] --> [ 1.]
