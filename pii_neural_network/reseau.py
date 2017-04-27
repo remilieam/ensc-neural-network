@@ -117,7 +117,7 @@ class Reseau:
         for i in range(nb_entrainements):
             erreur = self.propagation(donnees, coef_apprentissage)
             if ((i+1) % (nb_entrainements/10)) == 0 :
-                    print("À l’itération", (i+1), "l’erreur est de : %-.5f" %erreur)
+                    print("À l'itération", (i+1), "l'erreur est de : %-.5f" %erreur)
 
     def test(self, donnees):
         """
@@ -131,33 +131,66 @@ class Reseau:
                              (valeurs à attribuer aux neurones de la première
                              couches et valeurs désirées des neurones de la
                              dernière couche)
+        
+        Retour :
+        --------
+        
+        sorties_predites : tableau contenant les sorties prédites pour chaque 
+                           entrée après calcul par le réseau
         """
-        for entrees, sorties in donnees:
+        sorties_predites = np.zeros(len(donnees))
+        donnees_finales = np.copy(donnees)
+        for i, (entrees, _) in enumerate(donnees_finales):
             self.prediction(entrees)
-            print(entrees.ravel(), '->', self.couche_sortie.neurones.ravel(), '-->', sorties.ravel())
+            donnees_finales[i][1] = self.couche_sortie.neurones
+        return donnees_finales
 
 
 if __name__ == "__main__":
     import pii_neural_network.fonction as f
     import pii_neural_network.donnees as d
-    
+    import matplotlib.pyplot as p
+
     # Perceptron multi-couches
-    couche_entree = c.CoucheEntree(2, 1)
-    couche_cachee = c.CoucheConnectee(10, 0.5, f.sigmoide)
-    couche_cachee_2 = c.CoucheConnectee(6, 0.2, f.sigmoide)
-    couche_sortie = c.CoucheConnectee(1, 0.4, f.sigmoide)
+    xor_couche_entree = c.CoucheEntree(2, 1)
+    xor_couche_cachee = c.CoucheConnectee(10, 0.5, f.sigmoide)
+    xor_couche_cachee_2 = c.CoucheConnectee(6, 0.2, f.sigmoide)
+    xor_couche_sortie = c.CoucheConnectee(1, 0.4, f.sigmoide)
 
-    reseau = Reseau(couche_entree, couche_cachee, couche_cachee_2, couche_sortie)
+    xor_reseau = Reseau(xor_couche_entree, xor_couche_cachee, xor_couche_cachee_2, xor_couche_sortie)
 
-    donnees = [
+    xor_donnees = [
                [np.array([0.0, 0.0]), np.array([0.0])],
                [np.array([0.0, 1.0]), np.array([1.0])],
                [np.array([1.0, 0.0]), np.array([1.0])],
                [np.array([1.0, 1.0]), np.array([0.0])]
               ]
 
-    reseau.entrainement(donnees, 50000, 0.5)
-    reseau.test(donnees)
+    xor_reseau.entrainement(xor_donnees, 50000, 0.5)
+    xor_donnees_predites = xor_reseau.test(xor_donnees)
+
+    for ((_, xor_sortie_predite), (xor_entree, xor_sortie)) in zip(xor_donnees_predites, xor_donnees):
+        print(xor_entree.ravel(), '->', xor_sortie_predite.ravel(), '-->', xor_sortie.ravel())
+
+    # Perceptron multi-couches
+    sinus_couche_entree = c.CoucheEntree(1, 1)
+    sinus_couche_cachee = c.CoucheConnectee(10, 0.5, f.tanh)
+    sinus_couche_sortie = c.CoucheConnectee(1, 0.4, f.tanh)
+
+    sinus_reseau = Reseau(sinus_couche_entree, sinus_couche_cachee, sinus_couche_sortie)
+
+    x = np.linspace(0, np.pi, 100)
+    y = np.sin(x)
+
+    sinus_donnees = [(i, j) for i, j in zip(x, y)]
+
+    sinus_reseau.entrainement(sinus_donnees, 5000, 0.2)
+    sinus_donnees_predites = sinus_reseau.test(sinus_donnees)
+    sinus_sorties = [sinus_sortie for (_, sinus_sortie) in sinus_donnees_predites]
+
+    p.plot(x, y)
+    p.plot(x, sinus_sorties)
+    p.show()
 
     # Réseau neuronal convolué
     couche_entree = c.CoucheEntree(28, 28)
@@ -165,11 +198,11 @@ if __name__ == "__main__":
     couche_pooling = c.CouchePooling(2)
     couche_sortie = c.CoucheConnectee(10, 0.4, f.tanh)
 
-    reseau_mnist = Reseau(couche_entree, couche_convoluee, couche_pooling, couche_sortie)
+    mnist_reseau = Reseau(couche_entree, couche_convoluee, couche_pooling, couche_sortie)
 
     (entrainement_images, entrainement_labels), (test_images, test_labels) = d.recuperation()
     donnees_entrainement = [(x, y) for x, y in zip(entrainement_images, entrainement_labels)]
     donnees_test = [(x, y) for x, y in zip(test_images, test_labels)]
 
-    reseau_mnist.entrainement(donnees_entrainement[0:10], 10, 0.1)
-    reseau_mnist.test(donnees_test[0:2])
+    mnist_reseau.entrainement(donnees_entrainement[0:50], 100, 0.6)
+    mnist_donnees_predites = mnist_reseau.test(donnees_test[0:10])

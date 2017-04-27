@@ -12,7 +12,7 @@ import numpy as np
 import pii_neural_network.fonction as f
 __all__ = ['recuperation']
 
-def recuperation():
+def recuperation_mnist():
     """
     Permet de récupérer la base de données MNIST composées de 4 fichiers
     """
